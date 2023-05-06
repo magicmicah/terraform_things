@@ -10,7 +10,7 @@ provider "oci" {
 }
 
 resource "random_string" "instance_password" {
-  length = 16
+  length  = 16
   special = true
 }
 
@@ -32,12 +32,12 @@ data "oci_identity_availability_domains" "ad" {
 
 resource "oci_core_instance" "instance" {
   availability_domain = data.oci_identity_availability_domain.ad.name
-  compartment_id = var.compartment_ocid[var.oci_environment]
-  display_name = var.instance_name
-  shape = var.shape
+  compartment_id      = var.compartment_ocid[var.oci_environment]
+  display_name        = var.instance_name
+  shape               = var.shape
 
   shape_config {
-    ocpus = var.shape_ocpus
+    ocpus         = var.shape_ocpus
     memory_in_gbs = var.shape_memory
   }
 
@@ -46,13 +46,13 @@ resource "oci_core_instance" "instance" {
   }
 
   create_vnic_details {
-    subnet_id = oci_core_subnet.subnet.id
+    subnet_id        = oci_core_subnet.subnet.id
     assign_public_ip = true
   }
   source_details {
     boot_volume_size_in_gbs = 50
-    source_type = "image"
-    source_id = "ocid1.image.oc1.iad.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    source_type             = "image"
+    source_id               = "ocid1.image.oc1.iad.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
   }
   freeform_tags = local.tags
 }

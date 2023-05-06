@@ -2,7 +2,7 @@
 # oci_environment is a variable that is used to determine which environment to deploy to. This is then used as a key for all the variables.
 variable "oci_environment" {
   description = "The environment to deploy to. Valid values are environment1, environment2"
-  type = string
+  type        = string
   validation {
     condtion = var.oci_environment == "environment1" || var.oci_environment == "environment2"
   }
@@ -58,10 +58,10 @@ variable "instance_name" {
 variable "app_name" {
 }
 
-variable instance_image_ocid {
-  type    = map(string)
+variable "instance_image_ocid" {
+  type = map(string)
   default = {
     us-ashburn-1 = "ocid1.image.oc1.iad.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     us-phoenix-1 = "ocid1.image.oc1.phx.bb"
-    }
+  }
 }

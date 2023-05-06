@@ -20,7 +20,7 @@ variable "region" {
 }
 
 variable "cidr_blocks" {
-  type = list(string)
+  type    = list(string)
   default = ["192.168.1.0/24"]
 }
 
@@ -34,12 +34,12 @@ variable "display_name" {
 
 provider "oci" {
 
-  tenancy_ocid     = var.tenancy_ocid
-  user_ocid        = var.user_ocid
-  fingerprint      = var.fingerprint
-  private_key_path = var.private_key_path
-  region           = var.region
-  ignore_defined_tags      = ["testexamples-tag-namespace.tf-example-tag"]
+  tenancy_ocid        = var.tenancy_ocid
+  user_ocid           = var.user_ocid
+  fingerprint         = var.fingerprint
+  private_key_path    = var.private_key_path
+  region              = var.region
+  ignore_defined_tags = ["testexamples-tag-namespace.tf-example-tag"]
 }
 
 resource "oci_core_vcn" "vcn" {

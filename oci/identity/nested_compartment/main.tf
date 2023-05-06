@@ -21,8 +21,8 @@ variable "private_key_path" {
 variable "parent_compartment" {
   type = map(any)
   default = {
-    name           = "parent-compartment1"
-    description    = "compartment that holds a compartment"
+    name        = "parent-compartment1"
+    description = "compartment that holds a compartment"
   }
 }
 
@@ -38,6 +38,11 @@ variable "child_compartments" {
       name           = "child-compartment2"
       description    = "compartment inside another compartment"
       compartment_id = "parent-compartment1"
+    }
+    child-compartment-2-1 = {
+      name           = "child-compartment-2-1"
+      description    = "compartment inside another compartment"
+      compartment_id = "child-compartment2"
     }
   }
 }
@@ -61,7 +66,7 @@ resource "oci_identity_compartment" "parent-compartment" {
 }
 
 resource "oci_identity_compartment" "child-compartments" {
-  for_each = var.child_compartments
+  for_each       = var.child_compartments
   name           = each.value.name
   description    = each.value.description
   compartment_id = oci_identity_compartment.parent-compartment.id
@@ -74,7 +79,7 @@ output "parent_compartment" {
 
 output "child_compartments" {
   # value = oci_identity_compartment.child-compartment
-  value = { 
+  value = {
     for k, v in oci_identity_compartment.child-compartments : k => [v.id, v.name, v.description]
   }
 }
