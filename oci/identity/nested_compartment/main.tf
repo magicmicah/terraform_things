@@ -3,6 +3,7 @@
 
 /*
  * This example demonstrates how to work with nested compartments.
+ * It has been enhanced to use a map variable to define the compartments.
  */
 
 variable "tenancy_ocid" {
@@ -17,14 +18,35 @@ variable "fingerprint" {
 variable "private_key_path" {
 }
 
-variable "compartment_ocid" {
+variable "parent_compartment" {
+  type = map(any)
+  default = {
+    name           = "parent-compartment1"
+    description    = "compartment that holds a compartment"
+  }
 }
 
-variable "region" {
+variable "child_compartments" {
+  type = map(any)
+  default = {
+    child-compartment1 = {
+      name           = "child-compartment1"
+      description    = "compartment inside another compartment"
+      compartment_id = "parent-compartment1"
+    }
+    child-compartment2 = {
+      name           = "child-compartment2"
+      description    = "compartment inside another compartment"
+      compartment_id = "parent-compartment1"
+    }
+  }
+}
+
+variable "enable_delete" {
+  default = true
 }
 
 provider "oci" {
-  region           = var.region
   tenancy_ocid     = var.tenancy_ocid
   user_ocid        = var.user_ocid
   fingerprint      = var.fingerprint
@@ -32,43 +54,28 @@ provider "oci" {
 }
 
 resource "oci_identity_compartment" "parent-compartment" {
-  name           = "parent-compartment"
-  description    = "compartment that holds a compartment"
+  name           = var.parent_compartment["name"]
+  description    = var.parent_compartment["description"]
   compartment_id = var.tenancy_ocid
+  enable_delete  = var.enable_delete
 }
 
-resource "oci_identity_compartment" "child-compartment" {
-  name           = "child-compartment"
-  description    = "compartment inside another compartment"
+resource "oci_identity_compartment" "child-compartments" {
+  for_each = var.child_compartments
+  name           = each.value.name
+  description    = each.value.description
   compartment_id = oci_identity_compartment.parent-compartment.id
+  enable_delete  = var.enable_delete
 }
 
-data "oci_identity_compartments" "all-compartments" {
-  compartment_id            = oci_identity_compartment.parent-compartment.compartment_id
-  compartment_id_in_subtree = "true"
-  access_level              = "ANY"
+output "parent_compartment" {
+  value = [oci_identity_compartment.parent-compartment.id, oci_identity_compartment.parent-compartment.name, oci_identity_compartment.parent-compartment.description]
+}
 
-  filter {
-    name   = "name"
-    values = ["parent-compartment", "child-compartment"]
+output "child_compartments" {
+  # value = oci_identity_compartment.child-compartment
+  value = { 
+    for k, v in oci_identity_compartment.child-compartments : k => [v.id, v.name, v.description]
   }
 }
 
-data "oci_identity_compartment" "child-compartment" {
-  id = oci_identity_compartment.child-compartment.id
-}
-
-output "print-child-compartment" {
-  value = <<EOF
-
-  id = ${data.oci_identity_compartment.child-compartment.id}
-  compartment_id = ${data.oci_identity_compartment.child-compartment.compartment_id}
-  name = ${data.oci_identity_compartment.child-compartment.name}
-  description = ${data.oci_identity_compartment.child-compartment.description}
-EOF
-
-}
-
-output "print-all-compartments" {
-  value = data.oci_identity_compartments.all-compartments.compartments
-}
