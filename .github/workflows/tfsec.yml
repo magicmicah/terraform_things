@@ -25,8 +25,6 @@ jobs:
     steps:
       - name: Clone repo
         uses: actions/checkout@v3
-        with:
-          token: ${{secrets.GITHUB_TOKEN}}
 
       - name: Run tfsec
         uses: aquasecurity/tfsec-sarif-action@v0.1.4
